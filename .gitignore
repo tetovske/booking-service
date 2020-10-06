@@ -48,3 +48,56 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Ignore bundler config.
+
+**/.bundle
+
+# Ignore all logfiles and tempfiles.
+*/log/*
+*/tmp/*
+!*/log/.keep
+!*/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+*/tmp/pids/*
+!*/tmp/pids/
+!*/tmp/pids/.keep
+
+# Ignore uploaded files in development.
+*/storage/*
+!*/storage/.keep
+
+*/public/assets
+*/.byebug_history
+
+# Ignore master key for decrypting credentials and more.
+*/config/master.key
+
+*/public/packs
+*/public/packs-test
+*/node_modules
+*/yarn-error.log
+*/yarn-debug.log*
+*/.yarn-integrity
+
+**/.vscode
+*/.artifacts
+*/.idea/
+*/.rakeTasks
+*/.generators
+*/spec/screenshots
+*.DS_Store
+*.env
+*.rspec
+
+*/coverage
+*docker-compose*
+!*docker-compose-example.yml
+
+*/config/database.yml
+
+# Generated error pages by Errgent gem
+*/public/403.html
+*/public/404.html
+*/public/422.html
+*/public/500.html
