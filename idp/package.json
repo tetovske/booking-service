@@ -1,5 +1,5 @@
 {
-  "name": "idp_client",
+  "name": "idp",
   "private": true,
   "dependencies": {
     "@rails/actioncable": "^6.0.0",
