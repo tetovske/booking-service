@@ -101,3 +101,6 @@ Thumbs.db
 */public/404.html
 */public/422.html
 */public/500.html
+
+# RSA private & public keys
+*.pem
