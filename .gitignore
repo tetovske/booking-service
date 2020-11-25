@@ -104,3 +104,6 @@ Thumbs.db
 
 # RSA private & public keys
 *.pem
+
+# editors configs
+*.code-workspace

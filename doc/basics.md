@@ -551,3 +551,212 @@
   ```
 
   3. [Элементы протокола (см. диаграмму)](jwt-protocol.md)
+
+## Важные элементы интеракторной архитектуры
+
+### DSL для работы с монадными интеракторами в контроллерах
+
+```ruby
+module InteractorsDsl
+  RENDERABLE_ERRORS = [
+    ActiveModel::Error
+  ].freeze
+
+  private
+
+  ##
+  # Applies interactor to the context resolving into
+  # either interactor success value rendering or interactor failure handling.
+  #
+  # @param interactor: functional class returning Dry::Result
+  # @param context: parameter value to apply the interactor to
+  # @param status: optional return status for the reply renderer (defaults to :ok)
+  # @param block: optional block to yield with the interactor's success value
+  #
+  # @example Calling with custom interactor success value handler
+  #   interact_with(Instances::Destroy, params[:id]) { head :no_content }
+  #
+  # @example Calling with a custom http status
+  #   interact_with(Instances::Create, instance_params, :created)
+  #
+  def interact_with(interactor, context, status = :ok)
+    on_success = block_given? ? ->(value) { yield(value) } : on_success_lambda(status)
+    on_error = ->(error) { handle_interactor_failure(error) }
+    interactor.call(context).either(on_success, on_error)
+  end
+
+  def handle_interactor_failure(error)
+    case error
+    when *RENDERABLE_ERRORS
+      render_error(messages: error.try(:messages) || error.message)
+    else raise error
+    end
+  end
+
+  def on_success_lambda(status)
+    ->(value) { render_serialized(value, status: status) }
+  end
+end
+```
+
+### Образец консёрна JsonApiController
+
+```ruby
+module JsonAPIController
+  extend ActiveSupport::Concern
+
+  included do
+    include ActionController::Cookies
+
+    rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+    rescue_from ActionController::RoutingError, with: :render_not_found
+  end
+
+  private
+
+  def serializer_options
+    {}
+  end
+
+  def render_serialized(data, meta: {}, status: :ok)
+    render jsonapi: data,
+           include: serializer_options.fetch(:include) { [] },
+           fields: serializer_options.fetch(:fields) { {} },
+           expose: serializer_options.fetch(:expose) { {} },
+           status: status,
+           meta: meta
+  end
+
+  def render_not_found
+    render json: {
+      errors: [
+        {
+          title: 'Not found',
+          status: 404
+        }
+      ]
+    }, status: :not_found
+  end
+
+  def render_error(messages:)
+    render json: {
+      errors: Array.wrap(messages)
+    }, status: :unprocessable_entity
+  end
+
+  def render_unauthorized
+    render json: {
+      errors: [
+        {
+          title: 'Unauthorized',
+          status: 401
+        }
+      ],
+      loginUrl: jwt_init_url,
+      logoutUrl: jwt_logout_url
+    }, status: :unauthorized
+  end
+end
+```
+
+### Пример экшена для JSON:API
+
+```ruby
+module API
+  module V1
+    class InstancesController < ::API::ApplicationController
+      include InteractorsDsl
+
+      deserializable_resource :instance, only: %i[create update]
+
+      def index
+        render_serialized Instance.all
+      end
+
+      def create
+        interact_with(Instances::Create, instance_params, :created)
+      end
+
+      def show
+        interact_with(Instances::Read, params[:id])
+      end
+
+      def update
+        interact_with(
+          Instances::Update,
+          instance_params.merge(id: params[:id])
+        )
+      end
+
+      def destroy
+        interact_with(Instances::Destroy, params[:id]) { head :no_content }
+      end
+
+      private
+
+      def instance_params
+        params.require(:instance).permit(:name, :p1, :p2)
+      end
+
+      def serializer_options
+        { include: [:entities] }
+      end
+    end
+  end
+end
+```
+
+### Пример интерактора, рабоатющего с моделью
+
+```ruby
+module Instances
+  class Create
+    extend Dry::Initializer
+    include Dry::Monads[:try, :result, :do]
+
+    param :attrs
+
+    def call
+      model = yield build
+      yield set_attributes(model, attrs)
+      yield validate(model)
+      yield save(model) if model.changed?
+      Success(model)
+    end
+
+    class << self
+      def call(*args, &block)
+        new(*args).call(&block)
+      end
+
+      def new(*args)
+        args << args.pop.symbolize_keys if args.last.is_a?(Hash)
+        super(*args)
+      end
+    end
+
+    private
+
+    def model_class
+      Instance
+    end
+
+    def build
+      Success(model_class.new)
+    end
+
+    def set_attributes(model, attrs)
+      model.attributes = attrs
+      Success(model)
+    end
+
+    def validate(model)
+      model.valid? ? Success(model) : Failure(model.errors)
+    end
+
+    def save(model)
+      Try { model.tap(&:save) }.to_result
+    end
+  end
+end
+```
