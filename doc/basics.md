@@ -760,3 +760,85 @@ module Instances
   end
 end
 ```
+
+### Пример серверного интерактора с фильтрами
+
+```ruby
+class Index < BaseInteractor
+  Dry::Validation.load_extensions(:monads)
+
+  param :filter_params, proc(&:to_h), optional: true
+
+  FilterSchema = Dry::Validation.Params do
+    optional(:user_id).filled(:int?)
+    optional(:since).filled(:date?)
+    optional(:through).filled(:date?)
+
+    rule(since: %i[since through]) do |since, through|
+      through.filled?.then since.filled?
+    end
+
+    rule(through: %i[since through]) do |since, through|
+      since.filled?.then through.filled?
+    end
+
+    rule(through: %i[since through]) do |since, through|
+      (since.filled? & through.filled?) > since.lteq?(value(:through))
+    end
+  end
+
+  def call
+    filters = yield accept_filter_params
+    apply_filters(initial_scope, filters)
+  end
+
+  private
+
+  def initial_scope
+    @initial_scope ||= Slot
+                       .filled_slots
+                       .not_vacations
+                       .includes(:project)
+  end
+
+  def accept_filter_params
+    FilterSchema
+      .call(filter_params)
+      .to_monad
+  end
+
+  def apply_filters(scope, filters)
+    Try {
+      scope = apply_filter(
+        scope, filters, if: -> { filters[:user_id].blank? }
+      ) { |s, fs| s.where(fs.slice(:user_id)) }
+      scope = apply_filter(
+        scope, filters, if: -> { filters[:since].blank? }
+      ) { |s, fs| s.current_at(*fs.values_at(:since, :through)) }
+      scope
+    }.to_result
+  end
+
+  def apply_filter(scope, filters, opts = { if: -> { false } })
+    return scope if opts[:if].call
+
+    yield(scope, filters)
+  end
+end
+```
+
+### Пример метода запроса данных из сервера
+
+```ruby
+def connection
+  @connection ||= Faraday.new(
+    api_host,
+    headers: { Authorization: "Bearer #{auth_token}" },
+    ssl:     { verify: false }
+  )
+end
+```
+
+```ruby
+connection.get('resources', { filter: { since: ..., through: ..., user_id: ... } }) {|request| ... } ⇒ Faraday::Response
+```
