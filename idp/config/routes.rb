@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
-  root to: 'home#index'
+  root to: 'jwt#index'
   
-  get 'home/index'
+  get 'jwt/index'
+  
   devise_for :users
 
   get '/auth/sso/jwt/login', to: 'jwt#new'

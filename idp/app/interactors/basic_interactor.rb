@@ -9,6 +9,7 @@ class BasicInteractor
     klass.include Dry::Monads[:maybe, :result, :try]
     klass.include Dry::Monads::Do.for(:call)
   end
+  
   class << self
     # Instantiates and calls the service at once
     def call(*args, &block)
@@ -20,7 +21,9 @@ class BasicInteractor
       super(*args)
     end
   end
+
   private
+  
   def error_message(key, **attrs)
     I18n.t("interactors.#{self.class.name.underscore.tr('/', '.')}.errors.#{key}", attrs)
   end
