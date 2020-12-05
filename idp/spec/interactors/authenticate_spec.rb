@@ -19,6 +19,6 @@ RSpec.describe AuthenticateUser do
   end
 
   def authenticate(email, password)
-    AuthenticateUser.call({email: email, password: password})
+    AuthenticateUser.call({ email: email, password: password })
   end
 end

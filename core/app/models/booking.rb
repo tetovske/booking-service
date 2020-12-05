@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Booking < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :expert, class_name: 'User'

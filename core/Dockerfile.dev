@@ -17,6 +17,8 @@ RUN apk add -u --no-cache --progress openssl --repository=http://dl-cdn.alpineli
 
 RUN gem install bundler:${BUNDLER_VERSION}
 
+RUN apk add --no-cache git
+
 COPY Gemfile* $PROJECT_ROOT/
 RUN bundle check || \
     CFLAGS="-Wno-cast-function-type" \
