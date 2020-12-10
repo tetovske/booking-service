@@ -1,7 +1,10 @@
 require("@rails/ujs").start()
-// require("turbolinks").start()
 require("@rails/activestorage").start()
 require("channels")
+require('../pages/App')
 require('bootstrap')
 import 'bootstrap/dist/css/bootstrap'
-require('./hello_react')
+// Support component names relative to this directory:
+var componentRequireContext = require.context("components", true);
+var ReactRailsUJS = require("react_ujs");
+ReactRailsUJS.useContext(componentRequireContext);

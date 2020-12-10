@@ -1,0 +1,11 @@
+- if cookies[:was_authorized]
+  #root
+- else
+  .content.container-fluid.d-flex.flex-column.h-80
+    .jumbotron.m-auto.text-center.col-sm-10.col-md-8.col-lg-6.col-xl-5
+      %h1 Log in
+      %hr/
+      %p.lead Some text about this service
+      .mt-4
+        %hr/
+      = link_to 'Log in', jwt_login_request_path, class: "btn btn-primary"
