@@ -6,15 +6,16 @@ import BookingTable from "./BookingTable";
 import BookingForm from "./BookingForm";
 import Spinner from "../../components/Spinner";
 
-function createData(name, date) {
-    return { name, date };
+function createData(name, date,occupied) {
+    return { name, date, occupied};
 }
 
 const rows = [
-    createData('us1', '2020-12-28T10:00'),
-    createData('us2', '2020-12-29T10:00'),
-    createData('us3', '2020-12-30T10:00'),
-    createData('us4', '2020-12-31T10:00'),
+    createData('', '2020-12-28T12:00',false),
+    createData('us2', '2020-12-29T10:00', true),
+    createData('us3', '2020-12-30T10:00', true),
+    createData('', '2020-12-31T10:00', false),
+    createData('', '2020-12-14T01:58', false),
 ];
 
 class ForExperts extends React.Component{
@@ -22,13 +23,11 @@ class ForExperts extends React.Component{
         super(props);
         this.state = {
             bookings: [],
-            hideCompletedTodoItems: false,
             isLoading: true,
             errorMessage: null
         };
         this.getTodoItems = this.getTodoItems.bind(this);
         this.createTodoItem = this.createTodoItem.bind(this);
-        this.toggleCompletedTodoItems = this.toggleCompletedTodoItems.bind(this);
         this.handleErrors = this.handleErrors.bind(this);
         this.clearErrors = this.clearErrors.bind(this);
     }
@@ -59,11 +58,7 @@ class ForExperts extends React.Component{
         const bookings = [booking, ...this.state.bookings];
         this.setState({ booking });
     }
-    toggleCompletedTodoItems() {
-        this.setState({
-            hideCompletedTodoItems: !this.state.hideCompletedTodoItems
-        });
-    }
+
     handleErrors(errorMessage) {
         this.setState({ errorMessage });
     }
@@ -91,7 +86,6 @@ class ForExperts extends React.Component{
                                     key={booking.name}
                                     bookings={booking}
                                     getBookings={this.getTodoItems}
-                                    hideCompletedTodoItems={this.state.hideCompletedTodoItems}
                                     handleErrors={this.handleErrors}
                                     clearErrors={this.clearErrors}
                                 />

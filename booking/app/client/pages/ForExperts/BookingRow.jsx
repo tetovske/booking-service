@@ -3,15 +3,12 @@ import PropTypes from 'prop-types'
 import axios from "axios";
 import _ from "lodash";
 
-import MyPickers from "../../components/MyPickers";
-import {DateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
+import format from "date-fns/format";
 
 class BookingRow extends React.Component{
     constructor(props) {
         super(props)
         this.state = {
-            selectedDate: this.props.bookings.date,
             occupied: this.props.bookings.occupied,
         };
         this.handleDestroy = this.handleDestroy.bind(this);
@@ -63,7 +60,7 @@ class BookingRow extends React.Component{
     render() {
         const { bookings } = this.props
         return (
-            <tr className={`${ this.state.complete && this.props.hideCompletedTodoItems ? `d-none` : "" }`}>
+            <tr>
                 <td>
                     <span>
                         {bookings.name}
@@ -71,16 +68,21 @@ class BookingRow extends React.Component{
                 </td>
                 <td>
                     <input
-                        id={bookings.name}
+                        id={`booking__'${bookings.name}`}
                         className="form-control"
                         type="datetime-local"
-                        min={new Date()}
+                        disabled={bookings.occupied}
+                        min={format(
+                            new Date(),
+                            "yyyy-MM-dd'T'hh:mm"
+                        )}
                         value={bookings.date}
                         onChange={this.handleChange}
                     />
                 </td>
                 <td className="text-right">
                     <button
+                        disabled={bookings.occupied}
                         onClick={this.handleDestroy}
                         className="btn btn-outline-danger"
                     >
@@ -97,6 +99,5 @@ export default BookingRow
 BookingRow.propTypes = {
     bookings: PropTypes.object.isRequired,
     getBookings: PropTypes.func.isRequired,
-    hideCompletedTodoItems: PropTypes.bool.isRequired,
     clearErrors: PropTypes.func.isRequired
 }

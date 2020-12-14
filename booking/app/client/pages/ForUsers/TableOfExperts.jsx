@@ -20,8 +20,8 @@ function createData(id, name) {
         id,
         name,
         dashboard: [
-            { date: '2020-01-05', time: '10:00' },
-            { date: '2020-01-02', time: '10:00' },
+            { date: '2020-12-15', time: '10:00' },
+            { date: '2020-12-16', time: '10:00' },
         ],
     };
 }

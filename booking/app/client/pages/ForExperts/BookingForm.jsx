@@ -2,18 +2,18 @@ import React from "react";
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import setHeaders from "../../components/Headers";
-import MyPickers from "../../components/MyPickers";
 import {Grid} from "@material-ui/core";
+import format from 'date-fns/format'
+
 class BookingForm extends React.Component{
     constructor(props) {
         super(props)
         this.handleSubmit = this.handleSubmit.bind(this)
-        this.titleRef = React.createRef()
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        setHeaders();
+        // setHeaders();
         // axios
         //     .post('/api/v1/todo_items', {
         //         todo_item: {
@@ -33,6 +33,10 @@ class BookingForm extends React.Component{
     }
 
     render() {
+        let now = format(
+            new Date(),
+            "yyyy-MM-dd'T'hh:mm"
+        )
         return (
             <form onSubmit={this.handleSubmit} className="my-3">
                 <div className="form-row">
@@ -42,8 +46,8 @@ class BookingForm extends React.Component{
                                 id={'form-datetime'}
                                 className="form-control"
                                 type="datetime-local"
-                                min={new Date()}
-                                placeholder={new Date()}
+                                min = {now}
+                                defaultValue={now}
                             />
                         </Grid>
                     </div>

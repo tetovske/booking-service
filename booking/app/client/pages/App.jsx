@@ -5,7 +5,6 @@ import ForUser from "./ForUsers/TableOfExperts";
 import MyDashboard from "./MyDashboard/MyDashboard";
 import ForExperts from "./ForExperts/Experts";
 import Footer from "../components/Footer";
-import MyPickers from "../components/MyPickers";
 
 class App extends React.Component{
     render() {
