@@ -9,26 +9,27 @@ class BookingForm extends React.Component{
     constructor(props) {
         super(props)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.dateRef = React.createRef()
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        // setHeaders();
-        // axios
-        //     .post('/api/v1/todo_items', {
-        //         todo_item: {
-        //             title: this.titleRef.current.value,
-        //             complete: false,
-        //         },
-        //     })
-        //     .then(response => {
-        //         const todoItem = response.data
-        //         this.props.createTodoItem(todoItem);
-        //         this.props.clearErrors();
-        //     })
-        //     .catch(error => {
-        //         this.props.handleErrors(error);
-        //     })
+        setHeaders();
+        axios
+            .post('/api/v1/bookings', {
+                booking: {
+                    date: this.dateRef.current.value,
+                    occupied: false,
+                },
+            })
+            .then(response => {
+                const todoItem = response.data
+                this.props.createTodoItem(todoItem);
+                this.props.clearErrors();
+            })
+            .catch(error => {
+                this.props.handleErrors(error);
+            })
         e.target.reset()
     }
 
@@ -48,6 +49,7 @@ class BookingForm extends React.Component{
                                 type="datetime-local"
                                 min = {now}
                                 defaultValue={now}
+                                ref={this.dateRef}
                             />
                         </Grid>
                     </div>
@@ -66,7 +68,4 @@ export default BookingForm
 
 BookingForm.propTypes = {
     createTodoItem: PropTypes.func.isRequired,
-    handleErrors: PropTypes.func.isRequired,
-    clearErrors: PropTypes.func.isRequired
 }
-
