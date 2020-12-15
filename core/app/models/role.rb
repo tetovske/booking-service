@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 class Role < ApplicationRecord
-  DEFAULT_USER_ROLE_NAME = 'user'.freeze
-  EXPERT_ROLE_NAME = 'expert'.freeze
-  ADMIN_ROLE_NAME = 'admin'.freeze
+  DEFAULT_USER_ROLE_NAME = 'user'
+  EXPERT_ROLE_NAME = 'expert'
+  ADMIN_ROLE_NAME = 'admin'
   ALL_ROLES = %w[user expert admin].freeze
 
   enum name: { user: DEFAULT_USER_ROLE_NAME, expert: EXPERT_ROLE_NAME, admin: ADMIN_ROLE_NAME }

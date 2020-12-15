@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # frozen_string_literal : true
 
 class JwtController < ApplicationController
@@ -7,16 +9,15 @@ class JwtController < ApplicationController
 
   before_action :validate_jwt_request, except: %i[index]
 
-  def index
-    
-  end
-  
+  def index; end
+
   def new
     @access_token = bearer_token || body_bearer_token
     session[:login_url] = params[:login_url]
     if user_signed_in?
       user = User.find_by(id: user_id)
       return idp_make_jwt_response generate_token(user) if user.present?
+
       sign_out
       flash[:alert] = 'User not found!'
     end
@@ -26,7 +27,7 @@ class JwtController < ApplicationController
   def create
     AuthenticateUser.call(user_params).either(
       ->(user) {
-        sign_in(:user, user) if user_params[:remember_me] == "1"
+        sign_in(:user, user) if user_params[:remember_me] == '1'
         idp_make_jwt_response generate_token(user)
       },
       ->(failure_msg_key) {
@@ -67,6 +68,7 @@ class JwtController < ApplicationController
   def validate_jwt_request
     result = ValidateToken.call(bearer_token || body_bearer_token)
     return if result.success?
+
     # Rollbar.info "Validate JWT token error: #{result.failure}"
     Rails.logger.info "Validate JWT token error: #{result.failure}"
     head :forbidden
@@ -114,7 +116,6 @@ class JwtController < ApplicationController
 
   def rerender_login_form
     @access_token = params[:token]
-    redirect_to "/users/sign_in?token=#{params[:token]}" #render_modal_form 'jwt_idp/idp/new'
+    redirect_to "/users/sign_in?token=#{params[:token]}" # render_modal_form 'jwt_idp/idp/new'
   end
 end
-

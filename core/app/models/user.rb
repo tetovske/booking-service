@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
   has_many :user_roles, dependent: :destroy
   has_many :roles, through: :user_roles, dependent: :destroy
   has_many :bookings, dependent: :destroy
   has_many :bookings_where_expert, class_name: 'Booking', foreign_key: 'expert_id', dependent: :destroy,
-           inverse_of: :user
+                                   inverse_of: :user
   has_many :appointment_with_experts, through: :bookings, source: 'expert'
   scope :experts, -> { joins(:roles).where(roles: { name: Role::EXPERT_ROLE_NAME }) }
   scope :admins, -> { joins(:roles).where(roles: { name: Role::ADMIN_ROLE_NAME }) }

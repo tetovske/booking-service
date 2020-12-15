@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe ValidateToken do
   include_context 'tokens'
 
-  subject(:interactor_call) { ValidateToken.call token }
+  subject(:interactor_call) { described_class.call token }
 
   context 'when token is good' do
     let(:token) { valid }
@@ -18,7 +18,7 @@ RSpec.describe ValidateToken do
 
     it { expect(interactor_call.failure).to eq :invalid_token }
   end
-  
+
   context 'when token is ivalid' do
     let(:token) { invalid }
 
@@ -37,4 +37,3 @@ RSpec.describe ValidateToken do
     it { expect(interactor_call.failure).to eq :public_key_not_found }
   end
 end
-

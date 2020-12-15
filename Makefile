@@ -1,3 +1,10 @@
+SHELL=/bin/sh
+
+UID:=$(SHELL id -u)
+GID:=$(SHELL id -g)
+
+export UID GID
+
 app-build:
 	docker-compose build
 
@@ -22,6 +29,9 @@ app-core-console:
 app-idp-console:
 	docker-compose run --rm idp bundle exec rails c
 
+app-db-all-prepare: app-db-booking-prepare app-db-core-prepare app-db-idp-prepare
+
+app-db-booking-prepare: app-db-booking-drop app-db-booking-create app-db-booking-migrate app-db-booking-seed
 
 app-db-booking-create:
 	docker-compose run --rm booking bundle exec rails db:create
@@ -36,6 +46,7 @@ app-db-booking-drop:
 	docker-compose run --rm idp bundle exec rails db:drop
 
 
+app-db-core-prepare: app-db-core-drop app-db-core-create app-db-core-migrate app-db-core-seed
 
 app-db-core-create:
 	docker-compose run --rm core bundle exec rails db:create
@@ -49,6 +60,8 @@ app-db-core-seed:
 app-db-core-drop:
 	docker-compose run --rm idp bundle exec rails db:drop
 
+
+app-db-idp-prepare: app-db-idp-drop app-db-idp-create app-db-idp-migrate app-db-idp-seed
 
 app-db-idp-create:
 	docker-compose run --rm idp bundle exec rails db:create
